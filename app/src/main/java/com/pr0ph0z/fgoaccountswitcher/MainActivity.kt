@@ -52,8 +52,11 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
+import androidx.core.content.ContextCompat.startActivity
 import androidx.core.content.IntentCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.pr0ph0z.fgoaccountswitcher.components.FileContentDialog
+import com.pr0ph0z.fgoaccountswitcher.components.ListView
 import com.pr0ph0z.fgoaccountswitcher.ui.theme.FGOAccountSwitcherTheme
 import com.pr0ph0z.fgoaccountswitcher.util.Util
 import com.pr0ph0z.fgoaccountswitcher.util.Util.Companion.isPackageInstalled
@@ -66,7 +69,8 @@ class MainActivity : ComponentActivity() {
         setContent {
             FGOAccountSwitcherTheme {
                 val viewModel: AccountViewModel = viewModel(factory = AccountViewModel.Factory)
-                var showDialog by remember { mutableStateOf(false) }
+                val appViewModel: AppViewModel = viewModel()
+                val appUiState by appViewModel.uiState.collectAsState()
                 var newAccountName by remember { mutableStateOf("") }
                 var FILE_MANAGER = "com.google.android.documentsui"
 
@@ -84,31 +88,7 @@ class MainActivity : ComponentActivity() {
                     floatingActionButton = {
                         val context = LocalContext.current
                         FloatingActionButton(onClick = {
-                            if (isPackageInstalled(applicationContext, FILE_MANAGER)) {
-                                val intent = Intent()
-                                val activityName = "com.android.documentsui.files.FilesActivity"
-
-                                intent.component = ComponentName(FILE_MANAGER, activityName)
-
-                                try {
-                                    startActivity(intent)
-                                } catch (e: ActivityNotFoundException) {
-                                    Log.e("FileManager", "startFilesManager: failed to start", e);
-                                }
-
-                            } else {
-                                val selectedUri = Uri.parse(
-                                    Environment.getExternalStorageDirectory().toString()
-                                )
-                                val intent = Intent(Intent.ACTION_VIEW)
-                                intent.setDataAndType(selectedUri, "resource/folder")
-
-                                if (intent.resolveActivityInfo(packageManager, 0) != null) {
-                                    startActivity(intent)
-                                } else {
-                                    Toast.makeText(this, "No file manager app found", Toast.LENGTH_LONG).show()
-                                }
-                            }
+                            OpenFileManager(this, FILE_MANAGER)
                         }) {
                             Icon(Icons.Default.Add, contentDescription = "Add")
                         }
@@ -121,16 +101,15 @@ class MainActivity : ComponentActivity() {
 
                 when {
                     intent?.action == Intent.ACTION_SEND_MULTIPLE -> {
-                        Util.handleMultipleImage(intent, applicationContext)
+                        Util.handleCredentialFiles(intent, applicationContext, appViewModel)
                     }
                 }
 
 
-                if (showDialog) {
+                if (appUiState.showDialog) {
                     FileContentDialog(
-                        onDismiss = { showDialog = false }
+                        onDismiss = { appViewModel.updateDialog(false) }
                     )
-
                 }
 
 //                    Dialog(onDismissRequest = { showDialog = false }) {
@@ -184,79 +163,33 @@ class MainActivity : ComponentActivity() {
 fun MainScreen(viewModel: AccountViewModel = viewModel()) {
     val accounts by viewModel.allAccounts.collectAsState()
 
-    SimpleListView(accounts)
+    ListView(accounts)
 }
 
-@Composable
-fun SimpleListView(accounts: List<Account>) {
-    if (accounts.isEmpty()) {
-        Box(
-            modifier = Modifier.fillMaxSize(),
-            contentAlignment = Alignment.Center
-        ) {
-            Text(
-                text = "No data",
-                style = MaterialTheme.typography.headlineMedium,
-                textAlign = TextAlign.Center
-            )
+fun OpenFileManager(context: Context, packageName: String) {
+    if (isPackageInstalled(context, packageName)) {
+        val intent = Intent()
+        val activityName = "com.android.documentsui.files.FilesActivity"
+
+        intent.component = ComponentName(packageName, activityName)
+
+        try {
+            context.startActivity(intent)
+        } catch (e: ActivityNotFoundException) {
+            Log.e("FileManager", "startFilesManager: failed to start", e);
         }
+
     } else {
-        LazyColumn {
-            items(accounts) { account ->
-                ListItem(account.name)
-                Divider(
-                    color = Color.LightGray,
-                    thickness = 1.dp,
-                    modifier = Modifier.padding(horizontal = 16.dp)
-                )
-            }
+        val selectedUri = Uri.parse(
+            Environment.getExternalStorageDirectory().toString()
+        )
+        val intent = Intent(Intent.ACTION_VIEW)
+        intent.setDataAndType(selectedUri, "resource/folder")
+
+        if (intent.resolveActivityInfo(context.packageManager, 0) != null) {
+            context.startActivity(intent)
+        } else {
+            Toast.makeText(context, "No file manager app found", Toast.LENGTH_LONG).show()
         }
     }
 }
-
-@Composable
-fun ListItem(text: String) {
-    Text(
-        text = text,
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(16.dp)
-    )
-}
-
-@Composable
-fun FileContentDialog(
-    fileName: String = "bruh",
-    content: String = "content",
-    onDismiss: () -> Unit
-) {
-    Dialog(onDismissRequest = onDismiss) {
-        Surface(
-            shape = RoundedCornerShape(16.dp),
-            color = MaterialTheme.colorScheme.surface
-        ) {
-            Column(modifier = Modifier.padding(16.dp)) {
-                Text(
-                    text = fileName,
-                    style = MaterialTheme.typography.titleLarge
-                )
-                Spacer(modifier = Modifier.height(8.dp))
-                Box(
-                    modifier = Modifier
-                        .weight(1f)
-                        .verticalScroll(rememberScrollState())
-                ) {
-                    Text(text = content)
-                }
-                Spacer(modifier = Modifier.height(16.dp))
-                Button(
-                    onClick = onDismiss,
-                    modifier = Modifier.align(Alignment.End)
-                ) {
-                    Text("Close")
-                }
-            }
-        }
-    }
-}
-

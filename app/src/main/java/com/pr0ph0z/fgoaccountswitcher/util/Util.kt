@@ -7,6 +7,8 @@ import android.net.Uri
 import android.os.Build
 import android.provider.OpenableColumns
 import android.util.Log
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.pr0ph0z.fgoaccountswitcher.AppViewModel
 
 class Util {
     companion object {
@@ -21,18 +23,19 @@ class Util {
             return result
         }
 
-        fun handleMultipleImage(intent: Intent, context: Context) {
+        fun handleCredentialFiles(intent: Intent, context: Context, appViewModel: AppViewModel) {
             val fileList: ArrayList<Uri>? = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                 intent.getParcelableArrayListExtra<Uri>(Intent.EXTRA_STREAM, Uri::class.java)
             } else {
                 intent.getParcelableArrayListExtra<Uri>(Intent.EXTRA_STREAM)
             }
             if (fileList != null) {
+                appViewModel.updateDialog(true)
                 for (uri in fileList) {
                     try {
                         context.contentResolver.openInputStream(uri)?.use { inputStream ->
                             val text = inputStream.bufferedReader().use { it.readText() }
-                            Log.d("FileContent", "Content of ${getFileName(uri, context)}: $text")
+                            Log.d("FileContent", uri)
                         }
                     } catch (e: Exception) {
                         Log.e("FileContent", "Error reading file: ${e.message}")
