@@ -5,10 +5,15 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
+import android.os.Environment
 import android.provider.OpenableColumns
 import android.util.Log
+import android.widget.Toast
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.pr0ph0z.fgoaccountswitcher.AppViewModel
+import java.io.File
+import java.io.IOException
+import java.util.concurrent.TimeoutException
 
 class Util {
     companion object {
@@ -35,7 +40,7 @@ class Util {
                     try {
                         context.contentResolver.openInputStream(uri)?.use { inputStream ->
                             val text = inputStream.bufferedReader().use { it.readText() }
-                            Log.d("FileContent", uri)
+                            Log.d("FileContent", "Content of ${getFileName(uri, context)}: $text")
                         }
                     } catch (e: Exception) {
                         Log.e("FileContent", "Error reading file: ${e.message}")
@@ -66,5 +71,43 @@ class Util {
             }
             return result
         }
+
+        fun grantRootAccess(context: Context): Boolean {
+            val isRooted = try {
+                Runtime.getRuntime().exec("su")
+                true
+            } catch (e: IOException) {
+                false
+            } catch (e: TimeoutException) {
+                false
+            }
+
+            Thread.sleep(1000)
+
+            if (isRooted) {
+                Toast.makeText(context, "Root access granted", Toast.LENGTH_SHORT).show()
+            } else {
+                Toast.makeText(context, "Root access granted is not granted", Toast.LENGTH_SHORT).show()
+            }
+
+            return isRooted
+        }
+
+        fun getRootDirectory(): File {
+            return Environment.getRootDirectory()
+        }
+
+        fun readRootFile(path: String): String {
+            return File(path).readText()
+        }
+
+        fun writeRootFile(path: String, data: String) {
+            File(getRootDirectory(), path).writeText(data)
+        }
+
+        fun deleteRootFile(path: String) {
+            File(getRootDirectory(), path).delete()
+        }
+
     }
 }
