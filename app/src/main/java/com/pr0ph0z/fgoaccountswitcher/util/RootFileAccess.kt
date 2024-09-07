@@ -95,4 +95,18 @@ class RootFileAccess {
             continuation.resumeWithException(e)
         }
     }
+
+    suspend fun getCurrentUserID(context: Context): String = suspendCoroutine { continuation ->
+        val externalFileDirectory = context.getExternalFilesDir(null)
+        val filePath = File(externalFileDirectory!!.absolutePath.replace(context.packageName, FGO_PACKAGE_NAME), "data/e1a9f8e0ff970cc15b1a1d1e31d146db")
+        try {
+            val command = rootCommand + "cat $filePath"
+            val process = Runtime.getRuntime().exec(command)
+            val output = process.inputStream.bufferedReader().use { it.readText() }
+            val userID = output.replace("\t", "")
+            continuation.resume(userID)
+        } catch (e: IOException) {
+            continuation.resumeWithException(e)
+        }
+    }
 }

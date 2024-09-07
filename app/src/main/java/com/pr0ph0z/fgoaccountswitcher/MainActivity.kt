@@ -152,7 +152,10 @@ class MainActivity : ComponentActivity() {
                                     Button(
                                         onClick = {
                                             if (newAccountName.isNotBlank()) {
-                                                createAccount(applicationContext, newAccountName)
+                                                lifecycleScope.launch {
+                                                    val currentUserID = rootFileAccess.getCurrentUserID(applicationContext)
+                                                    viewModel.insert(newAccountName, currentUserID)
+                                                }
                                                 appViewModel.updateDialog(false)
                                             }
                                         }
@@ -165,20 +168,6 @@ class MainActivity : ComponentActivity() {
                     }
                 }
             }
-        }
-    }
-
-    private fun createAccount(context: Context, name: String) {
-        lifecycleScope.launch {
-            rootFileAccess.createAccount(context, name)
-        }
-    }
-
-    private fun getAppDataPath(path: String) {
-        lifecycleScope.launch {
-            val qwe = rootFileAccess.getAppDataPath(path)
-//            val file = rootFileAccess.readFile()
-            Log.d("fgo-tag", qwe)
         }
     }
 
