@@ -16,6 +16,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -43,12 +44,13 @@ class MainActivity : ComponentActivity() {
                 val viewModel: AccountViewModel = viewModel(factory = AccountViewModel.Factory)
                 val appViewModel: AppViewModel = viewModel()
                 val appUiState by appViewModel.uiState.collectAsState()
-                var accountName = remember { mutableStateOf("") }
+                val accountName = remember { mutableStateOf("") }
+                val accounts by viewModel.allAccounts.collectAsState()
 
                 Scaffold(
                     modifier = Modifier.fillMaxSize(),
                     topBar = {
-                        AppBar(title = "FGO Account Switcher")
+                        AppBar(title = "FGO Account Switcher", appUiState)
                     },
                     floatingActionButton = {
                         FloatingActionButton(onClick = {
@@ -57,9 +59,21 @@ class MainActivity : ComponentActivity() {
                             Icon(Icons.Default.Add, contentDescription = "Add")
                         }
                     }
-                ) {innerPadding ->
+                ) { innerPadding ->
                     Column(modifier = Modifier.padding(innerPadding)) {
-                        MainScreen(viewModel, onClickItem = ::switchAccount)
+                        ListView(
+                            accounts,
+                            appUiState.selectedAccount,
+                            onItemClick = { account ->
+                                if (appUiState.selectedAccount == account.id) {
+                                    appViewModel.updateSelectedAccount(0)
+                                } else {
+                                    switchAccount(account)
+                                }
+                            },
+                            onItemLongClick = { account ->
+                                appViewModel.updateSelectedAccount(account.id)
+                            })
                     }
                 }
 
@@ -80,10 +94,18 @@ class MainActivity : ComponentActivity() {
         lifecycleScope.launch {
             rootFileAccess.switchAccount(applicationContext, account.userID)
         }
-        Toast.makeText(applicationContext, "Account switched to ${account.name}", Toast.LENGTH_SHORT).show()
+        Toast.makeText(
+            applicationContext,
+            "Account switched to ${account.name}",
+            Toast.LENGTH_SHORT
+        ).show()
     }
 
-    private fun saveAccount(accountName: MutableState<String>, accountViewModel: AccountViewModel, appViewModel: AppViewModel) {
+    private fun saveAccount(
+        accountName: MutableState<String>,
+        accountViewModel: AccountViewModel,
+        appViewModel: AppViewModel
+    ) {
         if (accountName.value.isNotBlank()) {
             lifecycleScope.launch {
                 val currentUserID = rootFileAccess.getCurrentUserID(applicationContext)
@@ -116,11 +138,4 @@ class MainActivity : ComponentActivity() {
         Toast.makeText(applicationContext, "Root is not granted", Toast.LENGTH_SHORT).show()
     }
 
-}
-
-@Composable
-fun MainScreen(viewModel: AccountViewModel = viewModel(), onClickItem: (Account) -> Unit) {
-    val accounts by viewModel.allAccounts.collectAsState()
-
-    ListView(accounts, onClickItem)
 }

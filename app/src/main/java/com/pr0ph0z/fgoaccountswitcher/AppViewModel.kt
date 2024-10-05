@@ -15,4 +15,10 @@ class AppViewModel: ViewModel() {
             currentState.copy(showDialog = state)
         }
     }
+
+    fun updateSelectedAccount(state: Int) {
+        _uiState.update { currentState ->
+            currentState.copy(selectedAccount = state)
+        }
+    }
 }
