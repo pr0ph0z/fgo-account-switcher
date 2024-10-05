@@ -1,10 +1,13 @@
 package com.pr0ph0z.fgoaccountswitcher.components
 
+import android.util.Log.i
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -20,6 +23,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.pr0ph0z.fgoaccountswitcher.Account
 import com.pr0ph0z.fgoaccountswitcher.AppViewModel
 
@@ -45,7 +49,7 @@ fun ListItem(
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .height(56.dp)
+            .height(64.dp)
             .background(if (isSelected) Color.DarkGray else Color.Transparent)
             .combinedClickable(
                 onClick = { onItemClick(account) },
@@ -53,7 +57,12 @@ fun ListItem(
             )
             .padding(16.dp)
     ) {
-        Text(text = account.name)
+        Column {
+            Text(text = account.name)
+            Text(text = "(${account.userID.dropLast(1).replace(Regex(".{3}")){
+                "${it.value},"
+            } + account.userID.last()})", fontSize = 13.sp, color = Color.White.copy(alpha = 0.5f))
+        }
     }
 }
 
