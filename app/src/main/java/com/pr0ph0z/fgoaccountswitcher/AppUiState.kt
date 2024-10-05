@@ -4,8 +4,12 @@ enum class FormMode {
     CREATE, EDIT
 }
 
+enum class Dialog {
+    FORM, DELETE, NO_DIALOG
+}
+
 data class AppUiState(
-    val showDialog: Boolean = false,
+    val dialog: Dialog = Dialog.NO_DIALOG,
     val selectedAccount: Account = Account(),
     val formMode: FormMode = FormMode.CREATE
 )

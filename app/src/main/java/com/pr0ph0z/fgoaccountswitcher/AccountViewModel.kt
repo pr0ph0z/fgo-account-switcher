@@ -48,4 +48,11 @@ class AccountViewModel(application: Application) : AndroidViewModel(application)
         }
     }
 
+    fun delete(account: Account) {
+        viewModelScope.launch {
+            val dao = AppDatabase.getDatabase(getApplication()).accountDao()
+            dao.delete(account)
+        }
+    }
+
 }

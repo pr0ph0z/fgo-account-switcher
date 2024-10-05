@@ -10,9 +10,9 @@ class AppViewModel: ViewModel() {
     private val _uiState = MutableStateFlow(AppUiState())
     val uiState: StateFlow<AppUiState> = _uiState.asStateFlow()
 
-    fun updateDialog(state: Boolean) {
+    fun updateDialog(state: Dialog) {
         _uiState.update { currentState ->
-            currentState.copy(showDialog = state)
+            currentState.copy(dialog = state)
         }
     }
 

@@ -1,6 +1,7 @@
 package com.pr0ph0z.fgoaccountswitcher
 
 import androidx.room.Dao
+import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
@@ -16,4 +17,7 @@ interface AccountDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun update(account: Account)
+
+    @Delete
+    suspend fun delete(model: Account)
 }

@@ -22,6 +22,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.pr0ph0z.fgoaccountswitcher.components.AccountDeleteDialog
 import com.pr0ph0z.fgoaccountswitcher.components.AccountFormDialog
 import com.pr0ph0z.fgoaccountswitcher.components.AppBar
 import com.pr0ph0z.fgoaccountswitcher.components.ListView
@@ -56,15 +57,15 @@ class MainActivity : ComponentActivity() {
                             onEdit = {
                                 appViewModel.updateFormMode(FormMode.EDIT)
                                 accountName.value = appUiState.selectedAccount.name
-                                appViewModel.updateDialog(true)
+                                appViewModel.updateDialog(Dialog.FORM)
                             }, onDelete = {
-                            //
+                                appViewModel.updateDialog(Dialog.DELETE)
                             }
                         )
                     },
                     floatingActionButton = {
                         FloatingActionButton(onClick = {
-                            appViewModel.updateDialog(true)
+                            appViewModel.updateDialog(Dialog.FORM)
                         }) {
                             Icon(Icons.Default.Add, contentDescription = "Add")
                         }
@@ -87,26 +88,48 @@ class MainActivity : ComponentActivity() {
                     }
                 }
 
-                if (appUiState.showDialog) {
-                    AccountFormDialog(
-                        accountName = accountName,
-                        formMode = appUiState.formMode,
-                        onDismiss = {
-                            appViewModel.updateDialog(false)
-                            accountName.value = ""
-                        },
-                        onSave = {
-                            saveAccount(
-                                accountName,
-                                appUiState.selectedAccount,
-                                appUiState.formMode,
-                                viewModel,
-                                appViewModel
-                            )
-                        })
+                when (appUiState.dialog) {
+                    Dialog.FORM -> {
+                        AccountFormDialog(
+                            accountName = accountName,
+                            formMode = appUiState.formMode,
+                            onDismiss = {
+                                appViewModel.updateDialog(Dialog.NO_DIALOG)
+                                accountName.value = ""
+                            },
+                            onSave = {
+                                saveAccount(
+                                    accountName,
+                                    appUiState.selectedAccount,
+                                    appUiState.formMode,
+                                    viewModel,
+                                    appViewModel
+                                )
+                            })
+                    }
+
+                    Dialog.DELETE -> {
+                        AccountDeleteDialog(
+                            onDismiss = { appViewModel.updateDialog(Dialog.NO_DIALOG) },
+                            onDelete = { deleteAccount(appUiState.selectedAccount, viewModel, appViewModel) })
+                    }
+
+                    else -> {}
                 }
             }
         }
+    }
+
+    private fun deleteAccount(
+        account: Account,
+        accountViewModel: AccountViewModel,
+        appViewModel: AppViewModel
+    ) {
+        lifecycleScope.launch {
+            accountViewModel.delete(account)
+        }
+        appViewModel.updateSelectedAccount(Account())
+        appViewModel.updateDialog(Dialog.NO_DIALOG)
     }
 
     private fun switchAccount(account: Account) {
@@ -135,15 +158,20 @@ class MainActivity : ComponentActivity() {
                         accountViewModel.insert(accountName.value, currentUserID)
                         rootFileAccess.createAccount(applicationContext, currentUserID)
                     }
+
                     FormMode.EDIT -> {
                         accountViewModel.update(
-                            Account(id = account.id, name = accountName.value, userID = account.userID)
+                            Account(
+                                id = account.id,
+                                name = accountName.value,
+                                userID = account.userID
+                            )
                         )
                     }
                 }
             }
             appViewModel.updateSelectedAccount(Account())
-            appViewModel.updateDialog(false)
+            appViewModel.updateDialog(Dialog.NO_DIALOG)
         }
     }
 
