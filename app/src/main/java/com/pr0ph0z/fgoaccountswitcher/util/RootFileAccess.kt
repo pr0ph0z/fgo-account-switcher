@@ -3,7 +3,6 @@ package com.pr0ph0z.fgoaccountswitcher.util
 import android.content.Context
 import java.io.File
 import java.io.IOException
-import java.lang.Exception
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 import kotlin.coroutines.suspendCoroutine

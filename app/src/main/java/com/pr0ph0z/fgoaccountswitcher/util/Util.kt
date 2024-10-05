@@ -9,7 +9,6 @@ import android.os.Environment
 import android.provider.OpenableColumns
 import android.util.Log
 import android.widget.Toast
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.pr0ph0z.fgoaccountswitcher.AppViewModel
 import java.io.File
 import java.io.IOException
