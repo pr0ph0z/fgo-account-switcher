@@ -155,6 +155,7 @@ class MainActivity : ComponentActivity() {
                                                 lifecycleScope.launch {
                                                     val currentUserID = rootFileAccess.getCurrentUserID(applicationContext)
                                                     viewModel.insert(newAccountName, currentUserID)
+                                                    rootFileAccess.createAccount(applicationContext, currentUserID)
                                                 }
                                                 appViewModel.updateDialog(false)
                                             }
