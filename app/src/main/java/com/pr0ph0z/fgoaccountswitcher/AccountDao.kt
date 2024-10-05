@@ -2,6 +2,7 @@ package com.pr0ph0z.fgoaccountswitcher
 
 import androidx.room.Dao
 import androidx.room.Insert
+import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import kotlinx.coroutines.flow.Flow
 
@@ -13,4 +14,6 @@ interface AccountDao {
     @Insert
     suspend fun insert(account: Account)
 
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun update(account: Account)
 }

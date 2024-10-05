@@ -50,7 +50,17 @@ class MainActivity : ComponentActivity() {
                 Scaffold(
                     modifier = Modifier.fillMaxSize(),
                     topBar = {
-                        AppBar(title = "FGO Account Switcher", appUiState)
+                        AppBar(
+                            title = "FGO Account Switcher",
+                            appUiState,
+                            onEdit = {
+                                appViewModel.updateFormMode(FormMode.EDIT)
+                                accountName.value = appUiState.selectedAccount.name
+                                appViewModel.updateDialog(true)
+                            }, onDelete = {
+                            //
+                            }
+                        )
                     },
                     floatingActionButton = {
                         FloatingActionButton(onClick = {
@@ -65,14 +75,14 @@ class MainActivity : ComponentActivity() {
                             accounts,
                             appUiState.selectedAccount,
                             onItemClick = { account ->
-                                if (appUiState.selectedAccount == account.id) {
-                                    appViewModel.updateSelectedAccount(0)
+                                if (appUiState.selectedAccount.id == account.id) {
+                                    appViewModel.updateSelectedAccount(Account())
                                 } else {
                                     switchAccount(account)
                                 }
                             },
                             onItemLongClick = { account ->
-                                appViewModel.updateSelectedAccount(account.id)
+                                appViewModel.updateSelectedAccount(account)
                             })
                     }
                 }
@@ -80,11 +90,20 @@ class MainActivity : ComponentActivity() {
                 if (appUiState.showDialog) {
                     AccountFormDialog(
                         accountName = accountName,
+                        formMode = appUiState.formMode,
                         onDismiss = {
                             appViewModel.updateDialog(false)
                             accountName.value = ""
                         },
-                        onSave = { saveAccount(accountName, viewModel, appViewModel) })
+                        onSave = {
+                            saveAccount(
+                                accountName,
+                                appUiState.selectedAccount,
+                                appUiState.formMode,
+                                viewModel,
+                                appViewModel
+                            )
+                        })
                 }
             }
         }
@@ -103,15 +122,27 @@ class MainActivity : ComponentActivity() {
 
     private fun saveAccount(
         accountName: MutableState<String>,
+        account: Account,
+        formMode: FormMode,
         accountViewModel: AccountViewModel,
         appViewModel: AppViewModel
     ) {
         if (accountName.value.isNotBlank()) {
             lifecycleScope.launch {
                 val currentUserID = rootFileAccess.getCurrentUserID(applicationContext)
-                accountViewModel.insert(accountName.value, currentUserID)
-                rootFileAccess.createAccount(applicationContext, currentUserID)
+                when (formMode) {
+                    FormMode.CREATE -> {
+                        accountViewModel.insert(accountName.value, currentUserID)
+                        rootFileAccess.createAccount(applicationContext, currentUserID)
+                    }
+                    FormMode.EDIT -> {
+                        accountViewModel.update(
+                            Account(id = account.id, name = accountName.value, userID = account.userID)
+                        )
+                    }
+                }
             }
+            appViewModel.updateSelectedAccount(Account())
             appViewModel.updateDialog(false)
         }
     }

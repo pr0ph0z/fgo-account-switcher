@@ -41,4 +41,11 @@ class AccountViewModel(application: Application) : AndroidViewModel(application)
         }
     }
 
+    fun update(account: Account) {
+        viewModelScope.launch {
+            val dao = AppDatabase.getDatabase(getApplication()).accountDao()
+            dao.update(account)
+        }
+    }
+
 }

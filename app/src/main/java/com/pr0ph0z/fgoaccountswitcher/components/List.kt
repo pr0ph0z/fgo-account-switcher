@@ -60,7 +60,7 @@ fun ListItem(
 @Composable
 fun ListView(
     accounts: List<Account>,
-    selectedAccount: Int,
+    selectedAccount: Account,
     onItemClick: (Account) -> Unit,
     onItemLongClick: (Account) -> Unit)
 {
@@ -78,7 +78,7 @@ fun ListView(
     } else {
         LazyColumn {
             items(accounts) { account ->
-                ListItem(account, isSelected = selectedAccount == account.id, onItemClick, onItemLongClick)
+                ListItem(account, isSelected = selectedAccount.id == account.id, onItemClick, onItemLongClick)
             }
         }
     }

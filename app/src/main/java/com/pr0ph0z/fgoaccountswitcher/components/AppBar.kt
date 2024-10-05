@@ -16,11 +16,11 @@ import androidx.compose.ui.graphics.Color
 import com.pr0ph0z.fgoaccountswitcher.AppUiState
 
 @Composable
-fun AppBar(title: String, appUiState: AppUiState) {
-    val isActionMode = appUiState.selectedAccount != 0
+fun AppBar(title: String, appUiState: AppUiState, onEdit: () -> Unit, onDelete: () -> Unit) {
+    val isActionMode = appUiState.selectedAccount.id != 0
 
     if (isActionMode) {
-        ActionModeTopBar(onClearSelection = {})
+        ActionModeTopBar(onEdit, onDelete)
     } else {
         DefaultTopBar(title)
     }
@@ -43,15 +43,16 @@ fun DefaultTopBar(title: String) {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ActionModeTopBar(
-    onClearSelection: () -> Unit
+    onEdit: () -> Unit,
+    onDelete: () -> Unit
 ) {
     TopAppBar(
         title = {},
         actions = {
-            IconButton(onClick = { /* Handle delete action */ }) {
+            IconButton(onClick = onEdit) {
                 Icon(Icons.Default.Edit, contentDescription = "Edit")
             }
-            IconButton(onClick = { onClearSelection() }) {
+            IconButton(onClick = onDelete) {
                 Icon(Icons.Default.Delete, contentDescription = "Delete")
             }
         }

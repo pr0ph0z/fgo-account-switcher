@@ -19,10 +19,12 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
+import com.pr0ph0z.fgoaccountswitcher.FormMode
 
 @Composable
 fun AccountFormDialog(
     accountName: MutableState<String>,
+    formMode: FormMode,
     onDismiss: () -> Unit,
     onSave: () -> Unit
 ) {
@@ -35,7 +37,9 @@ fun AccountFormDialog(
             color = MaterialTheme.colorScheme.surface
         ) {
             Column(modifier = Modifier.padding(16.dp)) {
-                Text("Add New Account", style = MaterialTheme.typography.headlineSmall)
+                Text(
+                    "${if (formMode == FormMode.CREATE) "Add New" else "Edit"} Account",
+                    style = MaterialTheme.typography.headlineSmall)
                 Spacer(modifier = Modifier.height(16.dp))
                 OutlinedTextField(
                     value = accountName.value,
@@ -56,7 +60,7 @@ fun AccountFormDialog(
                         onSave()
                         onDismiss()
                     }) {
-                        Text("Add")
+                        Text(if (formMode == FormMode.CREATE) "Add" else "Edit")
                     }
                 }
             }

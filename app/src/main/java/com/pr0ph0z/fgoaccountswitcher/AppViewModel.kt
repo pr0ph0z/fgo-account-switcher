@@ -16,9 +16,15 @@ class AppViewModel: ViewModel() {
         }
     }
 
-    fun updateSelectedAccount(state: Int) {
+    fun updateSelectedAccount(state: Account) {
         _uiState.update { currentState ->
             currentState.copy(selectedAccount = state)
+        }
+    }
+
+    fun updateFormMode(state: FormMode) {
+        _uiState.update { currentState ->
+            currentState.copy(formMode = state)
         }
     }
 }
