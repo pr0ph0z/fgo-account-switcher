@@ -109,4 +109,23 @@ class RootFileAccess {
             continuation.resumeWithException(e)
         }
     }
+
+    suspend fun switchAccount(context: Context, userID: String): Void = suspendCoroutine { continuation ->
+        // create the directory
+        val externalFileDirectory = context.getExternalFilesDir(null)
+        val f = File(externalFileDirectory!!.absolutePath.replace(context.packageName, FGO_PACKAGE_NAME), "data")
+
+        try {
+            val files = authFiles.map { it -> File(externalFileDirectory!!.absolutePath, "$userID/$it").absolutePath }
+            val command = rootCommand + "cp ${files.joinToString(separator = " ")} ${f.absolutePath}"
+            val process = Runtime.getRuntime().exec(command)
+            val exitCode = process.waitFor()
+            if (exitCode != 0) {
+                val output = process.inputStream.bufferedReader().use { it.readText() }
+                throw IOException("Error in copying files: $output")
+            }
+        } catch (e: IOException) {
+            continuation.resumeWithException(e)
+        }
+    }
 }

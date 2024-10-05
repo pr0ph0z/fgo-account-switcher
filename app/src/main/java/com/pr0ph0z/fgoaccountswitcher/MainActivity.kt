@@ -118,7 +118,12 @@ class MainActivity : ComponentActivity() {
                     }
                 ) {innerPadding ->
                     Column(modifier = Modifier.padding(innerPadding)) {
-                        MainScreen(viewModel)
+                        MainScreen(viewModel, { account ->
+                            lifecycleScope.launch {
+                                rootFileAccess.switchAccount(applicationContext, account.userID)
+                            }
+                            Toast.makeText(applicationContext, "Account switched to ${account.name}", Toast.LENGTH_SHORT).show()
+                        })
                     }
                 }
 
@@ -197,8 +202,8 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun MainScreen(viewModel: AccountViewModel = viewModel()) {
+fun MainScreen(viewModel: AccountViewModel = viewModel(), onClickItem: (Account) -> Unit) {
     val accounts by viewModel.allAccounts.collectAsState()
 
-    ListView(accounts)
+    ListView(accounts, onClickItem)
 }
