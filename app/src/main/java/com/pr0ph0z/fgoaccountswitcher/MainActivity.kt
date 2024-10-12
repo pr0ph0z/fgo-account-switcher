@@ -1,9 +1,14 @@
 package com.pr0ph0z.fgoaccountswitcher
 
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
+import android.provider.Settings
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -35,8 +40,23 @@ import kotlinx.coroutines.withContext
 
 class MainActivity : ComponentActivity() {
     private val rootFileAccess = RootFileAccess()
+    private lateinit var overlayPermissionLauncher: ActivityResultLauncher<Intent>
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        // Register the launcher to handle the overlay permission result
+        overlayPermissionLauncher = registerForActivityResult(
+            ActivityResultContracts.StartActivityForResult()
+        ) { result ->
+            if (!Settings.canDrawOverlays(this)) {
+                Toast.makeText(this, "Overlay permission denied", Toast.LENGTH_SHORT).show()
+            }
+        }
+
+        // Check for the permission on startup or when needed
+        checkOverlayPermission()
+
 
         checkRootAccess()
 
@@ -65,7 +85,9 @@ class MainActivity : ComponentActivity() {
                     },
                     floatingActionButton = {
                         FloatingActionButton(onClick = {
-                            appViewModel.updateDialog(Dialog.FORM)
+                            startFloatingWidget()
+//                            minimizeApp()
+//                            appViewModel.updateDialog(Dialog.FORM)
                         }) {
                             Icon(Icons.Default.Add, contentDescription = "Add")
                         }
@@ -120,6 +142,7 @@ class MainActivity : ComponentActivity() {
         }
     }
 
+    // TODO: Add an option to delete the authentication files as well
     private fun deleteAccount(
         account: Account,
         accountViewModel: AccountViewModel,
@@ -196,5 +219,23 @@ class MainActivity : ComponentActivity() {
     private fun handleNoRootAccess() {
         Toast.makeText(applicationContext, "Root is not granted", Toast.LENGTH_SHORT).show()
     }
+
+    private fun checkOverlayPermission() {
+        if (!Settings.canDrawOverlays(this)) {
+            val intent = Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, Uri.parse("package:$packageName"))
+            overlayPermissionLauncher.launch(intent)
+        }
+    }
+
+    private fun minimizeApp() {
+        moveTaskToBack(true)
+    }
+
+    private fun startFloatingWidget() {
+        // Your code to start the FloatingWidgetService
+        val intent = Intent(this, FloatingWidgetService::class.java)
+        startService(intent)
+    }
+
 
 }
