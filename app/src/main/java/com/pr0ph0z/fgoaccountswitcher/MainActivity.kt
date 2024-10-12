@@ -17,11 +17,9 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
-import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -85,7 +83,7 @@ class MainActivity : ComponentActivity() {
                     },
                     floatingActionButton = {
                         FloatingActionButton(onClick = {
-                            startFloatingWidget()
+                            startFloatingWidget(accounts)
 //                            minimizeApp()
 //                            appViewModel.updateDialog(Dialog.FORM)
                         }) {
@@ -228,14 +226,15 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun minimizeApp() {
-        moveTaskToBack(true)
+        val startMain = Intent(Intent.ACTION_MAIN)
+        startMain.addCategory(Intent.CATEGORY_HOME)
+        startMain.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        startActivity(startMain)
     }
 
-    private fun startFloatingWidget() {
-        // Your code to start the FloatingWidgetService
+    private fun startFloatingWidget(accounts: List<Account>) {
         val intent = Intent(this, FloatingWidgetService::class.java)
+        intent.putParcelableArrayListExtra("accounts", ArrayList(accounts))
         startService(intent)
     }
-
-
 }

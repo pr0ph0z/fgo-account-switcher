@@ -1,17 +1,29 @@
 package com.pr0ph0z.fgoaccountswitcher
 
+import AccountAdapter
 import android.animation.ValueAnimator
 import android.annotation.SuppressLint
 import android.app.Service
 import android.content.Intent
 import android.graphics.PixelFormat
+import android.os.Build
 import android.os.IBinder
+import android.util.Log
 import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.View
 import android.view.WindowManager
+import android.widget.Button
 import android.widget.ImageView
+import android.widget.ListView
+import androidx.annotation.RequiresApi
+import androidx.lifecycle.ViewModelProvider
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 class FloatingWidgetService : Service() {
 
@@ -28,8 +40,13 @@ class FloatingWidgetService : Service() {
 
     private var isBoxVisible = false
 
+    private var accountList: ArrayList<Account> = arrayListOf()
+    private lateinit var adapter: AccountAdapter
+    private lateinit var listView: ListView
+
     override fun onBind(intent: Intent?): IBinder? = null
 
+    @RequiresApi(Build.VERSION_CODES.O)
     @SuppressLint("ClickableViewAccessibility")
     override fun onCreate() {
         super.onCreate()
@@ -66,7 +83,7 @@ class FloatingWidgetService : Service() {
 
         val menuButton = floatingView.findViewById<ImageView>(R.id.menu_button)
 
-        val closeBoxButton = floatingBoxView.findViewById<ImageView>(R.id.close_box_button)
+        val closeBoxButton = floatingBoxView.findViewById<Button>(R.id.close_box_button)
         closeBoxButton.setOnClickListener {
             windowManager.removeView(floatingBoxView)
             windowManager.addView(floatingView, layoutParams)
@@ -141,10 +158,31 @@ class FloatingWidgetService : Service() {
         }
     }
 
+    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        if (!::listView.isInitialized) {
+            listView = floatingBoxView.findViewById(R.id.lv_accounts)
+            adapter = AccountAdapter(applicationContext, R.layout.listview_row, accountList)
+            listView.adapter = adapter
+        }
+
+        val accounts = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            intent?.getParcelableArrayListExtra("accounts", Account::class.java)
+        } else {
+            intent?.getParcelableArrayListExtra("accounts")
+        }
+
+        accounts?.let {
+            accountList.clear()
+            accountList.addAll(it)
+
+            adapter.notifyDataSetChanged()
+        }
+
+        return START_STICKY
+    }
 
     override fun onDestroy() {
         super.onDestroy()
         if (::floatingView.isInitialized) windowManager.removeView(floatingView)
     }
-
 }

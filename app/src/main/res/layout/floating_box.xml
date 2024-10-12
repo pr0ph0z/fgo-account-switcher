@@ -1,21 +1,31 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
+    android:layout_width="250dp"
+    android:layout_height="260dp"
     android:orientation="vertical"
     android:padding="10dp"
-    android:background="@android:color/white">
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="coekekkk"/>
-
-    <ImageView
-        android:id="@+id/close_box_button"
-        android:layout_width="40dp"
+    android:background="@color/background">
+    <ListView
+        android:id="@+id/lv_accounts"
+        android:layout_height="200dp"
+        android:layout_width="match_parent">
+    </ListView>
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@android:color/white"/>
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="40dp"
-        android:src="@android:drawable/ic_delete" />
-
-    <!-- Add other buttons or views as needed -->
+        android:orientation="vertical">
+            <Button
+                android:id="@+id/close_box_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="end"
+                android:background="@android:color/transparent"
+                android:textColor="@color/white"
+                android:textAllCaps="false"
+                android:text="@string/minimize"/>
+    </LinearLayout>
 </LinearLayout>
