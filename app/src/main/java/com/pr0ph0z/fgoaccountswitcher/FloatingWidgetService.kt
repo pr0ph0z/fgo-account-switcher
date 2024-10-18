@@ -17,10 +17,12 @@ import android.view.WindowManager
 import android.widget.Button
 import android.widget.ImageView
 import android.widget.ListView
+import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.pr0ph0z.fgoaccountswitcher.util.RootFileAccess
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -43,6 +45,9 @@ class FloatingWidgetService : Service() {
     private var accountList: ArrayList<Account> = arrayListOf()
     private lateinit var adapter: AccountAdapter
     private lateinit var listView: ListView
+
+    private var rootFileAccess = RootFileAccess()
+    private var accountManager = AccountManager(rootFileAccess)
 
     override fun onBind(intent: Intent?): IBinder? = null
 
@@ -163,6 +168,10 @@ class FloatingWidgetService : Service() {
             listView = floatingBoxView.findViewById(R.id.lv_accounts)
             adapter = AccountAdapter(applicationContext, R.layout.listview_row, accountList)
             listView.adapter = adapter
+            listView.setOnItemClickListener { parent, view, position, id ->
+                val selectedAccount = accountList[position]
+                accountManager.switchAccount(applicationContext, selectedAccount)
+            }
         }
 
         val accounts = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {

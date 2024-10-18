@@ -39,6 +39,7 @@ import kotlinx.coroutines.withContext
 class MainActivity : ComponentActivity() {
     private val rootFileAccess = RootFileAccess()
     private lateinit var overlayPermissionLauncher: ActivityResultLauncher<Intent>
+    private val accountManager = AccountManager(rootFileAccess)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -99,7 +100,7 @@ class MainActivity : ComponentActivity() {
                                 if (appUiState.selectedAccount.id == account.id) {
                                     appViewModel.updateSelectedAccount(Account())
                                 } else {
-                                    switchAccount(account)
+                                    accountManager.switchAccount(applicationContext, account)
                                 }
                             },
                             onItemLongClick = { account ->
@@ -151,17 +152,6 @@ class MainActivity : ComponentActivity() {
         }
         appViewModel.updateSelectedAccount(Account())
         appViewModel.updateDialog(Dialog.NO_DIALOG)
-    }
-
-    private fun switchAccount(account: Account) {
-        lifecycleScope.launch {
-            rootFileAccess.switchAccount(applicationContext, account.userID)
-        }
-        Toast.makeText(
-            applicationContext,
-            "Account switched to ${account.name}",
-            Toast.LENGTH_SHORT
-        ).show()
     }
 
     private fun saveAccount(
