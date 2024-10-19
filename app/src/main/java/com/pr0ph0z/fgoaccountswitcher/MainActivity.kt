@@ -84,9 +84,7 @@ class MainActivity : ComponentActivity() {
                     },
                     floatingActionButton = {
                         FloatingActionButton(onClick = {
-                            startFloatingWidget(accounts)
-//                            minimizeApp()
-//                            appViewModel.updateDialog(Dialog.FORM)
+                            appViewModel.updateDialog(Dialog.FORM)
                         }) {
                             Icon(Icons.Default.Add, contentDescription = "Add")
                         }
@@ -101,6 +99,8 @@ class MainActivity : ComponentActivity() {
                                     appViewModel.updateSelectedAccount(Account())
                                 } else {
                                     accountManager.switchAccount(applicationContext, account)
+                                    startFloatingWidget(accounts)
+                                    minimizeApp()
                                 }
                             },
                             onItemLongClick = { account ->
