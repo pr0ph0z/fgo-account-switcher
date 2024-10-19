@@ -5,10 +5,11 @@ import android.animation.ValueAnimator
 import android.annotation.SuppressLint
 import android.app.Service
 import android.content.Intent
+import android.graphics.Color
 import android.graphics.PixelFormat
 import android.os.Build
 import android.os.IBinder
-import android.util.Log
+import android.util.TypedValue
 import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.MotionEvent
@@ -17,23 +18,19 @@ import android.view.WindowManager
 import android.widget.Button
 import android.widget.ImageView
 import android.widget.ListView
-import android.widget.Toast
 import androidx.annotation.RequiresApi
-import androidx.lifecycle.ViewModelProvider
-import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import com.pr0ph0z.fgoaccountswitcher.util.RootFileAccess
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
+
 
 class FloatingWidgetService : Service() {
 
     private lateinit var windowManager: WindowManager
     private lateinit var floatingView: View
     private lateinit var floatingBoxView: View
+    private lateinit var closeAreaView: View
     private var layoutParams: WindowManager.LayoutParams? = null
     private var floatingBoxLayoutParams: WindowManager.LayoutParams? = null
+    private var closeAreaLayoutParams: WindowManager.LayoutParams? = null
 
     private var initialX = 0
     private var initialY = 0
@@ -70,6 +67,7 @@ class FloatingWidgetService : Service() {
             x = 0
             y = 100
         }
+        windowManager.addView(floatingView, layoutParams)
 
         floatingBoxView = LayoutInflater.from(this).inflate(R.layout.floating_box, null)
         floatingBoxLayoutParams = WindowManager.LayoutParams(
@@ -84,7 +82,20 @@ class FloatingWidgetService : Service() {
             y = 100
         }
 
-        windowManager.addView(floatingView, layoutParams)
+        closeAreaView = LayoutInflater.from(this).inflate(R.layout.close_area, null)
+        closeAreaLayoutParams = WindowManager.LayoutParams(
+            WindowManager.LayoutParams.MATCH_PARENT,
+            200,  // Adjust to match close area height
+            WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY,
+            WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
+            PixelFormat.TRANSLUCENT
+        ).apply {
+            gravity = Gravity.BOTTOM or Gravity.CENTER_HORIZONTAL
+        }
+        windowManager.addView(closeAreaView, closeAreaLayoutParams)
+
+
+        val closeIcon = closeAreaView.findViewById<ImageView>(R.id.ca_close)
 
         val menuButton = floatingView.findViewById<ImageView>(R.id.menu_button)
 
@@ -117,6 +128,49 @@ class FloatingWidgetService : Service() {
                         layoutParams!!.x = initialX + deltaX
                         layoutParams!!.y = initialY + deltaY
 
+                        val screenHeight = resources.displayMetrics.heightPixels
+
+                        // Get the button's current position
+                        val buttonCenterY = layoutParams!!.y + floatingView.height / 2
+                        val buttonCenterX = layoutParams!!.x + floatingView.width / 2
+
+                        // Get the close icon's center position
+                        val closeIconCenterY = screenHeight - closeAreaView.height / 2
+                        val closeIconCenterX = (resources.displayMetrics.widthPixels / 2)
+
+                        // Check if the button is within the "magnetic" range
+                        val magnetRange = 150 // Distance in pixels to trigger the magnet effect
+                        val distanceToCloseArea = Math.sqrt(
+                            Math.pow((buttonCenterX - closeIconCenterX).toDouble(), 2.0) +
+                                    Math.pow((buttonCenterY - closeIconCenterY).toDouble(), 2.0)
+                        )
+
+                        if (distanceToCloseArea <= magnetRange) {
+                            // Animate the button to the center of the close icon
+                            layoutParams!!.x = closeIconCenterX - floatingView.width / 2
+                            layoutParams!!.y = closeIconCenterY - floatingView.height / 2
+                            windowManager.updateViewLayout(floatingView, layoutParams)
+                            val dimensionInDp = TypedValue.applyDimension(
+                                TypedValue.COMPLEX_UNIT_DIP,
+                                70F,
+                                resources.displayMetrics
+                            ).toInt()
+                            closeIcon.layoutParams.width = dimensionInDp
+                            closeIcon.layoutParams.height = dimensionInDp
+                            closeIcon.requestLayout()
+                            closeIcon.setColorFilter(Color.RED)
+                        } else {
+                            val dimensionInDp = TypedValue.applyDimension(
+                                TypedValue.COMPLEX_UNIT_DIP,
+                                60F,
+                                resources.displayMetrics
+                            ).toInt()
+                            closeIcon.layoutParams.width = dimensionInDp
+                            closeIcon.layoutParams.height = dimensionInDp
+                            closeIcon.requestLayout()
+                            closeIcon.setColorFilter(Color.WHITE)
+                        }
+
                         windowManager.updateViewLayout(floatingView, layoutParams)
                     }
                     true
@@ -125,22 +179,33 @@ class FloatingWidgetService : Service() {
                     if (!isDragging) {
                         menuButton.performClick()
                     } else {
-                        val screenWidth = resources.displayMetrics.widthPixels
-                        val middleX = screenWidth / 2
+                        val screenHeight = resources.displayMetrics.heightPixels
+                        val closeAreaTop = screenHeight - closeAreaView.height
 
-                        val targetX = if (layoutParams!!.x >= middleX) {
-                            screenWidth - floatingView.width
+                        val closeIconCenterY = (screenHeight - closeAreaView.height / 2) - floatingView.height / 2
+                        var closeIconCenterX = (resources.displayMetrics.widthPixels / 2) - floatingView.width / 2
+
+                        // If the button is released near the close area, stop the service
+                        if (layoutParams!!.x == closeIconCenterX && layoutParams!!.y == closeIconCenterY) {
+                            stopSelf()  // Stop the service
                         } else {
-                            0
-                        }
+                            val screenWidth = resources.displayMetrics.widthPixels
+                            val middleX = screenWidth / 2
 
-                        val animator = ValueAnimator.ofInt(layoutParams!!.x, targetX)
-                        animator.addUpdateListener { animation ->
-                            layoutParams!!.x = animation.animatedValue as Int
-                            windowManager.updateViewLayout(floatingView, layoutParams)
+                            val targetX = if (layoutParams!!.x >= middleX) {
+                                screenWidth - floatingView.width
+                            } else {
+                                0
+                            }
+
+                            val animator = ValueAnimator.ofInt(layoutParams!!.x, targetX)
+                            animator.addUpdateListener { animation ->
+                                layoutParams!!.x = animation.animatedValue as Int
+                                windowManager.updateViewLayout(floatingView, layoutParams)
+                            }
+                            animator.duration = 300
+                            animator.start()
                         }
-                        animator.duration = 300
-                        animator.start()
                     }
                     true
                 }
@@ -193,5 +258,6 @@ class FloatingWidgetService : Service() {
     override fun onDestroy() {
         super.onDestroy()
         if (::floatingView.isInitialized) windowManager.removeView(floatingView)
+        if (::closeAreaView.isInitialized) windowManager.removeView(closeAreaView)
     }
 }
