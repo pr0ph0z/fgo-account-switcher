@@ -14,7 +14,6 @@
         android:layout_width="60dp"
         android:layout_height="60dp"
         android:padding="0dp"
-        android:src="@mipmap/cancel_24px"
-        app:tint="@android:color/holo_red_dark"
+        android:src="@drawable/cancel_24px"
         android:layout_gravity="center" />
 </LinearLayout>

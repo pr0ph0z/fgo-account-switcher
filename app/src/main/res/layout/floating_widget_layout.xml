@@ -10,6 +10,6 @@
         android:layout_height="wrap_content"
         android:background="@drawable/round_button"
         android:padding="12dp"
-        android:src="@mipmap/menu_24px"
+        android:src="@drawable/menu_24px"
         android:scaleType="centerInside" />
 </LinearLayout>
