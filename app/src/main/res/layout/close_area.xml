@@ -6,7 +6,8 @@
     android:padding="0dp"
     android:layout_margin="0dp"
     android:orientation="vertical"
-    android:background="#00000000">
+    android:background="#00000000"
+    android:visibility="gone">
 
     <ImageView
         android:id="@+id/ca_close"

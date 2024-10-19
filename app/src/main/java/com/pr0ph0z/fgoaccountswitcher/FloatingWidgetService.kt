@@ -112,6 +112,8 @@ class FloatingWidgetService : Service() {
         menuButton.setOnTouchListener { view, motionEvent ->
             when (motionEvent.action) {
                 MotionEvent.ACTION_DOWN -> {
+                    closeAreaView.visibility = View.VISIBLE
+
                     initialX = layoutParams!!.x
                     initialY = layoutParams!!.y
                     initialTouchX = motionEvent.rawX
@@ -207,6 +209,7 @@ class FloatingWidgetService : Service() {
                             animator.start()
                         }
                     }
+                    closeAreaView.visibility = View.GONE
                     true
                 }
                 else -> false
