@@ -1,5 +1,6 @@
 # FGO Account Switcher
 <p align="center"><img src="app/src/main/res/mipmap-hdpi/ic_launcher_foreground.webp" /></p>
+
 ### Description
 FGO Account Switcher is an app that lets you switch between accounts easily. What it does in the background is just saving the needed FGO internal files (you can read the details more [here](https://www.reddit.com/r/grandorder/comments/hfbz0h/fgo_save_files_for_na_and_jp_play_on_multiple)), save it to **internal app directory**, and whenever you want to switch the active account, it will copy and replace the FGO internal files from the saved internal app directory.
 
