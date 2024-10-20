@@ -14,8 +14,8 @@ android {
         applicationId = "com.pr0ph0z.fgoaccountswitcher"
         minSdk = 24
         targetSdk = 34
-        versionCode = 1
-        versionName = "1.0"
+        versionCode = System.getenv("VERSION_CODE").toInt() ?: 1
+        versionName = System.getenv("VERSION_NAME") ?: System.getenv("VERSION_CODE") ?: "0.1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
