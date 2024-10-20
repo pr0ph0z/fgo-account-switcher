@@ -6,6 +6,8 @@ FGO Account Switcher is an app that lets you switch between accounts easily. Wha
 
 Currently only supports NA.
 
+Bugs may occur since I only developed and tested the app on one device. Let me know if you find one in [Issues](https://github.com/pr0ph0z/fgo-account-switcher/issues).
+
 ### Usage
 First and foremost you need a rooted device because Android doesn't let you modify other app internal files so a root access is needed. Then you can just download the file from the latest [release page](https://github.com/Fate-Grand-Automata/FGA/releases).
 
