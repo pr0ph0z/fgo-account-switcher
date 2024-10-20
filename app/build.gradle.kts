@@ -4,6 +4,7 @@ plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
     id("kotlin-parcelize")
+    id("com.google.devtools.ksp")
 }
 
 android {
@@ -14,8 +15,8 @@ android {
         applicationId = "com.pr0ph0z.fgoaccountswitcher"
         minSdk = 24
         targetSdk = 34
-        versionCode = System.getenv("VERSION_CODE").toInt() ?: 1
-        versionName = System.getenv("VERSION_NAME") ?: System.getenv("VERSION_CODE") ?: "0.1.0"
+        versionCode = 1
+        versionName = "0.1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -53,7 +54,7 @@ android {
         compose = true
     }
     composeOptions {
-        kotlinCompilerExtensionVersion = "1.5.1"
+        kotlinCompilerExtensionVersion = "1.5.0"
     }
     packaging {
         resources {
@@ -82,9 +83,12 @@ dependencies {
     debugImplementation("androidx.compose.ui:ui-test-manifest")
 
     val room_version = "2.6.1"
+
     implementation("androidx.room:room-runtime:$room_version")
-    annotationProcessor("androidx.room:room-compiler:$room_version")
     implementation("androidx.room:room-ktx:$room_version")
+
+    ksp("androidx.room:room-compiler:$room_version")
+
 
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.6.1")
 
