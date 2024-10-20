@@ -24,17 +24,22 @@ android {
     }
 
     signingConfigs {
-        //
+        create("release") {
+            storeFile = file("fgo-account-switcher.keystore")
+            storePassword = System.getenv("KEYSTORE_PASS")
+            keyAlias = "fgo-account-switcher"
+            keyPassword = System.getenv("KEYSTORE_PASS")
+        }
     }
 
     buildTypes {
-        release {
+        getByName("release") {
             isMinifyEnabled = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
-            signingConfig = null
+            signingConfig = signingConfigs.getByName("release")
         }
     }
     compileOptions {
