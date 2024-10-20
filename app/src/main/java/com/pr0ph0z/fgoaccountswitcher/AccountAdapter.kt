@@ -1,3 +1,5 @@
+package com.pr0ph0z.fgoaccountswitcher
+
 import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
@@ -5,8 +7,6 @@ import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.LinearLayout
 import android.widget.TextView
-import com.pr0ph0z.fgoaccountswitcher.Account
-import com.pr0ph0z.fgoaccountswitcher.R
 
 class AccountAdapter(context: Context, private val resource: Int, private val accounts: List<Account>) :
     ArrayAdapter<Account>(context, resource, accounts) {

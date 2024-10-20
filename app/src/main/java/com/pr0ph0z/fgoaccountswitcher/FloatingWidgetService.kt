@@ -1,6 +1,5 @@
 package com.pr0ph0z.fgoaccountswitcher
 
-import AccountAdapter
 import android.animation.ValueAnimator
 import android.annotation.SuppressLint
 import android.app.Service
