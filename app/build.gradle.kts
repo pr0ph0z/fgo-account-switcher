@@ -3,7 +3,6 @@ import org.apache.tools.ant.util.JavaEnvUtils.VERSION_11
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
-    id("kotlin-kapt")
     id("kotlin-parcelize")
 }
 
@@ -24,6 +23,10 @@ android {
         }
     }
 
+    signingConfigs {
+        //
+    }
+
     buildTypes {
         release {
             isMinifyEnabled = false
@@ -31,6 +34,7 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+            signingConfig = null
         }
     }
     compileOptions {
@@ -74,7 +78,7 @@ dependencies {
 
     val room_version = "2.6.1"
     implementation("androidx.room:room-runtime:$room_version")
-    kapt("androidx.room:room-compiler:$room_version")
+    annotationProcessor("androidx.room:room-compiler:$room_version")
     implementation("androidx.room:room-ktx:$room_version")
 
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.6.1")
