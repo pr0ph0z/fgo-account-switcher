@@ -71,7 +71,7 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     topBar = {
                         AppBar(
-                            title = "FGO Account Switcher",
+                            title = getString(R.string.app_name),
                             appUiState,
                             onEdit = {
                                 appViewModel.updateFormMode(FormMode.EDIT)
