@@ -34,6 +34,11 @@ android {
     }
 
     buildTypes {
+        getByName("debug") {
+            applicationIdSuffix = ".debug"
+            versionNameSuffix = "-debug"
+            resValue("string", "app_name", "@string/app_name_debug")
+        }
         getByName("release") {
             isMinifyEnabled = false
             proguardFiles(
