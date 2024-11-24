@@ -23,6 +23,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.pr0ph0z.fgoaccountswitcher.components.AccountDeleteDialog
@@ -88,7 +90,8 @@ class MainActivity : ComponentActivity() {
                         }) {
                             Icon(Icons.Default.Add, contentDescription = "Add")
                         }
-                    }
+                    },
+                    containerColor = Color(ContextCompat.getColor(applicationContext, R.color.bg))
                 ) { innerPadding ->
                     Column(modifier = Modifier.padding(innerPadding)) {
                         ListView(

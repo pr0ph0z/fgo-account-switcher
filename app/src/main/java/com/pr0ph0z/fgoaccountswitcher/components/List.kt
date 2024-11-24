@@ -1,5 +1,6 @@
 package com.pr0ph0z.fgoaccountswitcher.components
 
+import android.content.res.Resources
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -22,6 +23,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.pr0ph0z.fgoaccountswitcher.Account
+import com.pr0ph0z.fgoaccountswitcher.R
 
 @Composable
 fun ListItem(account: Account, onItemClick: (Account) -> Unit) {
@@ -54,10 +56,12 @@ fun ListItem(
             .padding(16.dp)
     ) {
         Column {
-            Text(text = account.name)
+            Text(text = account.name, color = Color.White)
             Text(text = "(${account.userID.dropLast(1).replace(Regex(".{3}")){
                 "${it.value},"
-            } + account.userID.last()})", fontSize = 13.sp, color = Color.White.copy(alpha = 0.5f))
+            } + account.userID.last()})",
+                fontSize = 13.sp,
+                color = Color.White.copy(alpha = 0.5f))
         }
     }
 }
@@ -77,7 +81,8 @@ fun ListView(
             Text(
                 text = "No data",
                 style = MaterialTheme.typography.headlineMedium,
-                textAlign = TextAlign.Center
+                textAlign = TextAlign.Center,
+                color = Color.White
             )
         }
     } else {
