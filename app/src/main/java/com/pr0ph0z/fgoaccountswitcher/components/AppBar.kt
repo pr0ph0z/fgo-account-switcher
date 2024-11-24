@@ -34,7 +34,7 @@ fun DefaultTopBar(title: String) {
         title = { Text(title) },
         colors = TopAppBarDefaults.topAppBarColors(
             containerColor = Color(0xff191c20),
-            titleContentColor = MaterialTheme.colorScheme.onPrimaryContainer,
+            titleContentColor = Color.White,
         )
     )
 }

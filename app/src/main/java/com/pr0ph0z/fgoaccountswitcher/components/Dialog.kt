@@ -17,11 +17,16 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.currentCompositionLocalContext
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
+import androidx.core.content.ContextCompat
 import com.pr0ph0z.fgoaccountswitcher.FormMode
+import com.pr0ph0z.fgoaccountswitcher.R
 
 @Composable
 fun AccountFormDialog(
@@ -36,12 +41,13 @@ fun AccountFormDialog(
                 .fillMaxWidth()
                 .padding(16.dp),
             shape = MaterialTheme.shapes.medium,
-            color = MaterialTheme.colorScheme.surface
+            color = Color(0xFF191C20)
         ) {
             Column(modifier = Modifier.padding(16.dp)) {
                 Text(
                     "${if (formMode == FormMode.CREATE) "Add New" else "Edit"} Account",
-                    style = MaterialTheme.typography.headlineSmall
+                    style = MaterialTheme.typography.headlineSmall,
+                    color = Color.White
                 )
                 Spacer(modifier = Modifier.height(16.dp))
                 OutlinedTextField(
